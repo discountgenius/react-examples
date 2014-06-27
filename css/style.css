@@ -1,0 +1,31 @@
+body {
+  background: #fff;
+}
+
+.formNode {
+  border: 1px solid black;
+  margin: 20px;
+  padding: 20px;
+}
+
+input[type="text"] {
+  width: 100%;
+}
+
+.box-even {
+  background: #ccc;
+}
+
+.box-odd {
+  background: #eee;
+}
+
+textarea {
+  width: 80%;
+  height: 200px;
+  margin:50px;
+}
+
+h1 {
+  text-align: center;
+}

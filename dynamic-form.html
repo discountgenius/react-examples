@@ -1,0 +1,176 @@
+<html>
+  <head>
+    <title>Dynamically Generated Form</title>
+    <script src="http://fb.me/react-0.10.0.js"></script>
+    <script src="http://fb.me/JSXTransformer-0.10.0.js"></script>
+    <script src="http://code.jquery.com/jquery-1.10.0.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="css/style.css">
+  </head>
+  <body>
+    <div id="input"></div>
+    <div id="content"></div>
+    <script type="text/jsx">
+      /**
+       * @jsx React.DOM
+       */
+      // The above declaration must remain intact at the top of the script.
+      // Your code here
+      var InputBox = React.createClass({
+        render: function() {
+          return (
+            <div className="inputBox">
+              <h1>
+                Current json
+              </h1>
+              <textarea defaultValue={JSON.stringify(this.props.data, undefined, 2)} />
+            </div>
+          );
+        }
+      });
+      var data = 
+      {
+        "id":"00000314159265359",
+        "fields":[
+          {"firstname":"Tim", "required":true},
+          {"lastname":"Cash", "required":true},
+          {"email":"tim@oakleon.com", "required":true},
+          {"Address":[
+            {"street":"12345 fake street"},
+            {"city": "San Diego"},
+            {"state": "CA"},
+            {"zipcode": "92119"}
+            ]},
+          {"date_created":1392164977880},
+          {"tag":"technician"},
+          {"tag":"user"},
+          {"comment":"This is the first comment about Tim"},
+          {"comment":"Here is the second comment about Tim"},
+          {"comment":"And a third comment about Tim"},
+          {"how":{"deep":{"does":{"the":{"rabbit":{"hole":"go?"}}}}}},
+          {"roles":{
+            "sales":false,
+            "admin":false,
+            "tech":true,
+            "manager":true
+            }}
+        ]
+      };
+      React.renderComponent(
+        <InputBox data={data} />,
+        document.getElementById('input')
+      );
+
+      var FormNode = React.createClass({
+        render: function() {
+          var classString = 'formNode';
+          var toggle = this.props.toggle;
+          if (toggle) {
+            classString += ' box-even';
+          }
+          if (!toggle) {
+            classString += ' box-odd';
+          }
+          var nodes = [];
+          for(var property in this.props.data) {
+            if(property != "required") {
+              if(typeof this.props.data[property] != "boolean") {
+                if(this.props.data.required) {
+                  nodes.push(
+                    <div>
+                      <h4>
+                        {property}*:
+                      </h4>
+                    </div>
+                  );
+                }
+                else {
+                  nodes.push(
+                    <div>
+                      <h4>
+                        {property}:
+                      </h4>
+                    </div>
+                  );              
+                }
+              }
+
+              if(this.props.data[property] instanceof Array) {
+                for(var property2 in this.props.data[property]) {
+                  nodes.push(
+                    <FormNode data={this.props.data[property][property2]} className={classString} toggle={!toggle}/>
+                  );
+                }
+              }
+              else {
+                switch(typeof this.props.data[property]) {
+                  case "string":
+                    nodes.push(
+                      <div>
+                        <input type="text" defaultValue={this.props.data[property]} ref={property} />
+                      </div>
+                    );
+                    break;
+                  case "boolean":
+                    if(this.props.data[property]) {
+                      nodes.push(
+                        <input type="checkbox" value={this.props.data[property]} ref={property} defaultChecked="true" > {property} </input>
+                      );
+                    }
+                    else {
+                      nodes.push(
+                        <input type="checkbox" value={this.props.data[property]} ref={property} > {property} </input>
+                      );
+                    }
+                    break;
+                  case "number":
+                    nodes.push(
+                      <input type="text" defaultValue={this.props.data[property]} ref={property} />
+                    );
+                    break;
+                  case "object":
+                    nodes.push(
+                      <FormNode data={this.props.data[property]} className={classString} toggle={!toggle}/>
+                    );
+                    break;
+                  default:
+                    nodes.push(
+                      <h3>
+                        Something else entirely.
+                      </h3>
+                    );
+                    break;
+                }
+              }
+            }
+          };
+          return (
+            <div className={classString} toggle={!toggle}>
+              {nodes}
+            </div>
+          );
+        }
+      });
+      var FormBox = React.createClass({
+        getInitialState: function() {
+          return {data: $.parseJSON($(".inputBox textarea").val())};
+        },
+        handleClick: function(event) {
+          this.setState({data: $.parseJSON($(".inputBox textarea").val())});
+        },
+        render: function() {
+          return (
+            <div className="formBox">
+              <button onClick={this.handleClick}>Click to render</button>
+              <h1>Result</h1>
+              <FormNode data={this.state.data} toggle={true} />
+            </div>
+          );
+        }
+      });
+      React.renderComponent(
+        <FormBox />,
+        document.getElementById('content')
+      );
+    </script>
+  </body>
+</html>
